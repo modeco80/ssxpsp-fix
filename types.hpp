@@ -17,3 +17,8 @@ struct InternalModInfo {
 	u8* textBase;
 	usize textSize;
 };
+
+template<class U, class T>
+inline auto unsafeTransmute(const T src) {
+	return __builtin_bit_cast(U, src);
+}

@@ -47,8 +47,8 @@ static void CheckModules() {
 
 			} else if (!strcmp(info.name, MODULE_NAME) == 0) {
 				bFoundInternalModule = true;
-				mainModInfo.textBase = reinterpret_cast<u8*>(info.text_addr);
-				mainModInfo.textSize = info.text_size;
+				ourModInfo.textBase = reinterpret_cast<u8*>(info.text_addr);
+				ourModInfo.textSize = info.text_size;
 			}
 		}
 	}

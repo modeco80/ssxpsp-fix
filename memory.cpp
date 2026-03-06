@@ -11,7 +11,8 @@ namespace mem {
 		usize size;
 
 		u8* memory() { return reinterpret_cast<u8*>(this+1); }
-		// TODO memoryAligned
+		// TODO memoryAligned? Though due to this, we should
+		// always be aligned by word boundary anyways...
 	};
 
 

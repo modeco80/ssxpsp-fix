@@ -2,7 +2,7 @@
 
 #include "types.hpp"
 
-namespace mips {
+namespace mipse {
 
 	enum RegisterID {
 		r0 = 0,
