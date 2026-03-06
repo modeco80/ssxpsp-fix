@@ -1,11 +1,7 @@
 #pragma once
 
 namespace logc {
-	enum Level {
-		Info,
-		Warn,
-		Error
-	};
+	enum Level { Info, Warn, Error };
 
 	void init();
 
@@ -13,4 +9,4 @@ namespace logc {
 
 	void print(Level level, const char* pszFormat, ...);
 
-}
+} // namespace logc

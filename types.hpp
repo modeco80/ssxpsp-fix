@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 using u8 = uint8_t;
 using i8 = int8_t;
@@ -18,7 +18,7 @@ struct InternalModInfo {
 	usize textSize;
 };
 
-template<class U, class T>
+template <class U, class T>
 inline auto unsafeTransmute(const T src) {
 	return __builtin_bit_cast(U, src);
 }

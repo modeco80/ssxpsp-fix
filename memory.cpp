@@ -1,38 +1,46 @@
+#include "memory.hpp"
+
 #include <pspsdk.h>
 #include <pspuser.h>
 
-#include "memory.hpp"
+#include "heap.hpp"
+#include "log.hpp"
 
 namespace mem {
 
-	/// Memory allocated with these functions has this header before it
-	struct tMemoryBlockHeader {
-		SceUID partitionMemoryUID;
-		usize size;
+	SceUID gMemoryUID = -1;
+	impl::Heap* gpMemHeap = nullptr;
 
-		u8* memory() { return reinterpret_cast<u8*>(this+1); }
-		// TODO memoryAligned? Though due to this, we should
-		// always be aligned by word boundary anyways...
-	};
+	void init(usize memSize) {
+		auto uid = sceKernelAllocPartitionMemory(PSP_MEMORY_PARTITION_USER, "memmgr", PSP_SMEM_Low, memSize, NULL);
+		if(uid >= 0) {
+			// The kernel allocated memory successfully. Let's create our heap on top of it.
+			gMemoryUID = uid;
+			gpMemHeap = impl::Heap::create(reinterpret_cast<u8*>(sceKernelGetBlockHeadAddr(uid)), memSize);
+			logc::print(logc::Info, "Heap (%u bytes) initialized successfully.", memSize);
+		}
+	}
+
+	void shutdown() {
+		if(gpMemHeap) {
+			// Destroy the heap.
+			gpMemHeap->~Heap();
+
+			// Free the kernel allocated memory.
+			sceKernelFreePartitionMemory(gMemoryUID);
+			gMemoryUID = -1;
+		}
+	}
 
 	u8* allocate(size_t size) {
-		auto uid = sceKernelAllocPartitionMemory(PSP_MEMORY_PARTITION_USER, "", PSP_SMEM_Low, size + sizeof(tMemoryBlockHeader), NULL);
-
-		if (uid >= 0) {
-			auto* p = reinterpret_cast<tMemoryBlockHeader*>(sceKernelGetBlockHeadAddr(uid));
-			p->partitionMemoryUID = uid;
-			p->size = size;
-			return p->memory();
-		}
-
-		return nullptr;
+		if(gpMemHeap == nullptr)
+			return nullptr;
+		return reinterpret_cast<u8*>(gpMemHeap->allocate(size));
 	}
 
 	void free(u8* ptr) {
-		if (ptr) {
-			auto* pBlockHeader = reinterpret_cast<tMemoryBlockHeader*>(ptr-sizeof(tMemoryBlockHeader));
-			auto uid = pBlockHeader->partitionMemoryUID;
-			sceKernelFreePartitionMemory(uid);
-		}
+		if(gpMemHeap == nullptr)
+			return;
+		gpMemHeap->free(ptr);
 	}
-}
+} // namespace mem

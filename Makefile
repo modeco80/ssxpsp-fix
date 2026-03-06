@@ -2,6 +2,7 @@ TARGET = ../otpspfix
 OBJS = \
 	abort.o \
 	entry.o \
+	heap.o \
 	memory.o \
 	log.o \
 	main.o \
