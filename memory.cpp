@@ -5,7 +5,7 @@
 
 namespace mem {
 
-	// allocated objects add this header
+	/// Memory allocated with these functions has this header before it
 	struct tMemoryBlockHeader {
 		SceUID partitionMemoryUID;
 		usize size;
@@ -14,7 +14,6 @@ namespace mem {
 		// TODO memoryAligned? Though due to this, we should
 		// always be aligned by word boundary anyways...
 	};
-
 
 	u8* allocate(size_t size) {
 		auto uid = sceKernelAllocPartitionMemory(PSP_MEMORY_PARTITION_USER, "", PSP_SMEM_Low, size + sizeof(tMemoryBlockHeader), NULL);

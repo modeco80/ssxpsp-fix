@@ -15,13 +15,13 @@
 
 PSP_MODULE_INFO("pspfix", 0, 1, 0);
 
-// defined in main.cpp
-void ModuleMain();
-
 extern InternalModInfo mainModInfo;
 InternalModInfo ourModInfo;
 
-static void CheckModules() {
+// defined in main.cpp
+void ModuleMain();
+
+static void moduleScanSce() {
 	SceUID modules[10]{};
 	int count = 0;
 	bool bFoundMainModule = false;
@@ -58,13 +58,14 @@ static void CheckModules() {
 	}
 }
 
-static void CheckModulesPSP() {
+static void moduleScanCfw() {
 	SceModule mod = { 0 };
+	SceModule this_module = { 0 };
+
 	int kuErrCode = kuKernelFindModuleByName("ssxpsp", &mod);
 	if (kuErrCode != 0)
 		return;
 
-	SceModule this_module = { 0 };
 	kuErrCode = kuKernelFindModuleByName(MODULE_NAME, &this_module);
 	if (kuErrCode != 0)
 		return;
@@ -75,12 +76,13 @@ static void CheckModulesPSP() {
 extern "C" int module_start(SceSize argc, void* argp) {
 	logc::init();
 
-	// If a kemulator interface exists, we know that we're in an emulator
+	// If a kemulator: device exists, then we can be reasonably sure that we're in an emulator.
+	// In that case, we need to scan the modules using normal/official syscalls.
+	// See (https://github.com/hrydgard/ppsspp/pull/13335#issuecomment-689026242).
 	if (sceIoDevctl("kemulator:", 0x00000003, NULL, 0, NULL, 0) == 0)
-		CheckModules(); // scan the modules using normal/official syscalls (https://github.com/hrydgard/ppsspp/pull/13335#issuecomment-689026242)
-		else {
-			CheckModulesPSP();
-		}
+		moduleScanSce();
+	else
+		moduleScanCfw();
 
-		return 0;
+	return 0;
 }
