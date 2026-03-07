@@ -1,2 +1,2 @@
 #!/bin/bash
-find . -type f | rg -e "(.cpp|.h|.hpp)" | xargs -i -- clang-format -i "{}"
+find src/ -type f | rg -e "(.cpp|.h|.hpp)" | xargs -i -- clang-format -i "{}"
