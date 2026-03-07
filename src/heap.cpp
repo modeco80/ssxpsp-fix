@@ -15,16 +15,17 @@ namespace mem::impl {
 		head->size = size;
 	}
 
+	constexpr static auto kSegmentSplitSizeHeuristic = static_cast<Heap::SignedSizeType>(2 * sizeof(Heap::Segment));
+
 	Heap::Pointer Heap::allocate(SizeType count) {
 		Segment* current {};
-		Segment* prev {};
 		Segment* best {};
 
-		SignedSizeType difference {};
-		SignedSizeType bestDifference { 0x7fffffff };
+		SignedSizeType difference = 0;
+		SignedSizeType bestDifference = 0x7fffffff;
 
-		count += sizeof(Segment);
 		// Align size to 16 (naive, could probably do this better with bit twiddling)
+		count += sizeof(Segment);
 		count += count % 16 ? 16 - (count % 16) : 0;
 
 		// Find the allocation that is closest in bytes to this request
@@ -34,26 +35,17 @@ namespace mem::impl {
 				best = current;
 				bestDifference = difference;
 			}
-			prev = current;
 		}
 
 		// Couldn't find a fitting allocation, give up.
 		if(best == nullptr) {
-#if 0
-			if(reinterpret_cast<u8*>(prev) + prev->size >= reinterpret_cast<u8*>(head) + this->chunkSize) {
-				// Out of heap memory.
-			}
-#endif
-
 			return nullptr;
 		}
 
 		// If the best difference we could come up with was large, split up this segment into two.
-		if(bestDifference > static_cast<SignedSizeType>(2 * sizeof(Segment))) {
+		if(bestDifference > kSegmentSplitSizeHeuristic) {
 			auto splitSegment = new(reinterpret_cast<u8*>(best) + count) Segment;
-
 			current = best->Next;
-
 			best->Next = splitSegment;
 			best->Next->Next = current;
 			best->Next->Prev = best;

@@ -12,8 +12,6 @@
 
 InternalModInfo mainModInfo {};
 
-u32* pHookMemory;
-
 void doLoadRiderPatch() {
 	// Offset to a problematic instruction in cRider::loadRider(), which breaks loading rider data.
 	constexpr static auto kOffset_cRider_loadRider_problematic = 0x6f88;
@@ -32,6 +30,8 @@ void doAsyncfilePatch() {
 	logc::print(logc::Info, "Did ASYNCFILE_init patch");
 }
 
+u32* gpInitPlayersHookMemory;
+
 void doInitPlayersHook() {
 	constexpr static auto kHookMemorySize = 64;
 
@@ -46,17 +46,17 @@ void doInitPlayersHook() {
 	constexpr static auto kOffset_cRider_initOnce_Func = 0x6b2c;
 
 	// Allocate hook memory.
-	pHookMemory = reinterpret_cast<u32*>(mem::allocate(kHookMemorySize));
-	if(pHookMemory == nullptr) {
+	gpInitPlayersHookMemory = reinterpret_cast<u32*>(mem::allocate(kHookMemorySize));
+	if(gpInitPlayersHookMemory == nullptr) {
 		logc::print(logc::Error, "Hook memory was not allocated successfully :(");
 		return;
 	}
 
-	volatile auto* pHookMemoryCursor = pHookMemory;
+	volatile auto* pHookMemoryCursor = gpInitPlayersHookMemory;
 	volatile auto* pModuleHookTarget = reinterpret_cast<u32*>(mainModInfo.textBase + kOffset_cAI_InitPlayers_TrampolineHook);
 
 	// Perform the initial trampoline hook which gets us to our code.
-	*pModuleHookTarget++ = mipse::j(unsafeTransmute<i32>(pHookMemory));
+	*pModuleHookTarget++ = mipse::j(unsafeTransmute<i32>(gpInitPlayersHookMemory));
 	*pModuleHookTarget++ = mipse::nop();
 
 	// Now, in the hook memory, assemble the calls we need.

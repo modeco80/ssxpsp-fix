@@ -44,7 +44,7 @@ static void moduleScanSce() {
 				mainModInfo.textBase = reinterpret_cast<u8*>(info.text_addr);
 				mainModInfo.textSize = info.text_size;
 
-			} else if(!strcmp(info.name, MODULE_NAME) == 0) {
+			} else if(!strcmp(info.name, MODULE_NAME)) {
 				bFoundInternalModule = true;
 				ourModInfo.textBase = reinterpret_cast<u8*>(info.text_addr);
 				ourModInfo.textSize = info.text_size;

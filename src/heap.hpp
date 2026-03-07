@@ -13,7 +13,6 @@ namespace mem::impl {
 		using Pointer = u8*;
 		using ConstPointer = const u8*;
 
-	   private:
 		struct [[gnu::aligned(4)]] Segment {
 		   protected:
 			friend Heap;
@@ -22,7 +21,7 @@ namespace mem::impl {
 
 		   public:
 			bool allocated {};
-			uint32_t size {};
+			SizeType size {};
 		};
 
 	   public:

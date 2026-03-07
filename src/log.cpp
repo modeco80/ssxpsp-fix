@@ -1,6 +1,5 @@
 
 #include "log.hpp"
-#include "types.hpp"
 
 #include <pspctrl.h>
 #include <pspsdk.h>
@@ -8,6 +7,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "types.hpp"
 
 namespace logc {
 
@@ -45,7 +46,7 @@ namespace logc {
 			case Info: pszPrefix = "[i] "; break;
 			case Warn: pszPrefix = "[W] "; break;
 			case Error: pszPrefix = "[E] "; break;
-			default: pszPrefix = "[? Fix code!!! ?] ";
+			default: break;
 		}
 
 		putsImpl(pszPrefix);

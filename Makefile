@@ -8,6 +8,8 @@ OBJS = \
 	main.o \
 	exports.o
 
+VPATH := src/
+
 CFLAGS = -O3 -G0 -Wall -fshort-wchar -fno-pic -mno-check-zero-division -fpack-struct=16
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
